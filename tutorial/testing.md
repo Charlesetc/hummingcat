@@ -5,12 +5,12 @@ Testing your hummingcat app:
 
 	Start your app on a seperate thread.
 	Direct your browser to the url.
-	Examine the reslt.
+	Examine the result.
 	Stop your app.
 
 Example:
 
-```
+```clojure
 (ns your-ab.integration-test
   (:require [clojure.test :refer :all]
             [hummingcat.lib :as h]
