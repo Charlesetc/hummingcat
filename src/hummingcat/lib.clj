@@ -23,28 +23,12 @@
       _1
       (concat (list (first _1) (r_insert _rest)) (rest _1)))))
 
-;; All Equivilent:
+;; To handle requests:
 
   ;  (def-handler handler [request]
   ;    (get "/this" this)
   ;    (get "/that" that)
   ;  )
-
-  ; (defn handler [request]
-  ;   ((->
-  ;     hummingcat/status_404
-  ;     (get "/this" this)
-  ;     (get "/that" that)) request))
-
-  ; (hummingcat/def-handler handler [request]
-  ;  (hummingcat/get "/this" this)
-  ;  (hummingcat/get "/that" that))
-
-  ; (defn handler [request]
-  ;  ((hummingcat/string-together
-  ;    (hummingcat/get "/this" this)
-  ;    (hummingcat/get "/that" that)
-  ;    hummingcat/status_404) request))
 
 (defmacro def-handler [variable parameter & args]
   (let [full_list (conj (vec args) status_404)]
@@ -74,7 +58,7 @@
     (wrap-stacktrace)))
 
 (defn run
-  ([handler port the_rest] 
+  ([handler port the_rest]
     (run-jetty (wrap-app handler) (assoc the_rest :port port)))
   ([handler port]
     (run-jetty (wrap-app handler) {:port port})))
