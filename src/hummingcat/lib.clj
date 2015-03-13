@@ -36,11 +36,13 @@
   )
 
 (defn def-route [handler method path res]
+  (let [re-path (re-pattern path)]
   (fn [request]
+    (let [match (re-find re-path (:uri request))]
     (if
-      (and (= (:request-method request) method) (= (:uri request) path))
+      (and (= (:request-method request) method) (> (count match) 0))
       (content-type (response res) "text/html")
-      (handler request))))
+      (handler request))))))
 
 (defn get [handler path res] (def-route handler :get path res))
 (defn post [handler path res] (def-route handler :post path res))
@@ -62,3 +64,8 @@
     (run-jetty (wrap-app handler) (assoc the_rest :port port)))
   ([handler port]
     (run-jetty (wrap-app handler) {:port port})))
+
+
+
+
+
