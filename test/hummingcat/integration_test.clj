@@ -18,28 +18,28 @@
 
 ; Setting up Server...
 
+(def this (html [:html
+  [:head
+    [:title "THIS"]]
+  [:body
+    [:h1 "Clojure"]
+    [:p "...is a fun language!"]]]))
+
+
 (h/def-handler handler [request]
-  (h/get "/this" (html
-                    [:head
-                      [:title "THIS"]]
-                    [:body
-                      [:h1 "Clojure"]
-                      [:p "...is a fun language!"]])))
+  (h/get "/this" this))
 
-
-(h/def-handler handler2 [request]
-  (h/get "/this" (html
-                    [:head
-                      [:title "THIS"]]
-                    [:body
-                      [:h1 "Clojure"]
-                      [:p "...is a fun language!"]]))
+(h/def-handler handler2 [req]
+  (h/get "/this" this)
   (h/get "/that" (html
-                    [:head
+                    [:html [:head
                       [:title "THAT"]]
                     [:body
                       [:h1 "Clojure"]
-                      [:p "...is a fun language!"]])))
+                      [:p "...is a fun language!"]]])))
+
+(h/def-handler regexhandler [request]
+ (h/get "/this/||\\d+" this))
 
 
 ; These tests are bulky but not for the users.
@@ -64,7 +64,10 @@
   (future-cancel f)
   )
 
-; (deftest testing-htest
-;   (test-handler handler
-;     (t/to "localhost:8000/this")
-;     (is (= (t/title) "THIS"))))
+(deftest regex-test
+  (def f (future (h/run regexhandler 8000)))
+  (t/to "localhost:8000/somethin_crazy")
+  (is (not (= (t/title) "THIS")))
+  (t/to "localhost:8000/this/21242")
+  (is (= (t/title) "THIS"))
+  (future-cancel f))

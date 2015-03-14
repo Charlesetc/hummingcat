@@ -11,15 +11,15 @@ Faster than a cat.
 ## Usage
 
 First, require the project:
-```clojure
-(use 'hiccup.core)
+```clojure 
+(use 'hiccup.core) # Hiccup is for html generation
 (require '[hummingcat.lib :as hcat])
 ```
 
 Now that we've gotten that taken care of, we can define some views. This view is intended to display the url:
 
 ```clojure
-(defn display_url [url]
+(defn display_url [url] # Takes the url as a parameter
   (html
     [:head
       [:title "What url was that?"]]
@@ -37,6 +37,8 @@ Now we can decide exactly which requests get which views:
 ```
 
 This will take a request from the user. If it's a `GET` for the url `/this_specific_url` the user will see `omg you requested this one!`. Any other request will display the view `display_url`, including the url which they are requesting.
+
+The nice thing about hummingcat is that it includes this functionality without forcing you to conform to a specific structure. You can place your views in whatever folder or file you want. Same with your handlers. 
 
 Lastly, we need to run the server:
 
