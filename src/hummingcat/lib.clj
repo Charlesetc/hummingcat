@@ -20,6 +20,8 @@
    :headers {"Content-Type" "text/plain"}
    :body "404"})
 
+
+
   ; This is for the macro def-handler 
   ; It takes a list and puts them around each other
   ; Kind of like this:
@@ -43,48 +45,35 @@
   `(defn ~variable ~parameter
     ~(list (r_insert full_list) (first parameter)))))
 
-(defn add_match_to [response match]
-  [(first response) (conj (apply list (second response)) match)])
-
-(defn parse-match 
-  ([url path]
-    (let [sections (map 
-                     #(re-pattern (str \^ %)) 
-                     (string/split path #"\|\|"))]
-      (parse-match url path sections)))
-  ([url path sections] 
-    (let [_1st_regex (first sections) 
-          match (re-find _1st_regex url)
-          chopped_url (apply str (drop (count match) url))
-          chopped_sections (drop 1 sections)
-          match_zero (empty? match)
-          url_zero (empty? chopped_url)
-          section_zero (empty? chopped_sections)]
-      (cond 
-        match_zero 
-          [false []] ; Simply doesn't match
-        (and url_zero section_zero)
-          [true [match]] ; Something should go here
-        (or url_zero section_zero)
-          [false []] ; Does not match —  Leftover sections. or text.
-        :else
-          (add_match_to 
-            (parse-match chopped_url path chopped_sections) match)))))
-
-(defn def-route [handler method path res]
+(defn def-route
+  "To define a route, passing in a method and a path to match."
+  [handler method path res]
   (fn [request]
-    (let [[match params] (parse-match (:uri request) (str path))]
+    (let [request_matched (= (:request-method request) method)
+          url (:uri request)
+          regex_matched (not (empty? (re-find (re-pattern path) url)))]
       (if
-        (and (= (:request-method request) method) match)
-        (content-type (response res) "text/html")
+        (and request_matched regex_matched)
+        (content-type (response res) "text/html") ; Wraps the response
         (handler request)))))
 
 (defn get [handler path res] (def-route handler :get path res))
 (defn post [handler path res] (def-route handler :post path res))
 
-(defn wrap-app [handler]
+
+; Custom url-parametrization
+(defn wrap-url-params [handler]
+  (fn [request] 
+    (let [url (:uri request) 
+          url-params (filter not-empty (string/split url #"/"))]
+      (handler (assoc request :url-params url-params)))))
+
+(defn wrap-app
+  "This is to wrap the request with middleware"
+  [handler]
   (->
     handler
+    (wrap-url-params) ; Custom url-parametrization
     (wrap-params)
     (wrap-session)
     (wrap-cookies)
