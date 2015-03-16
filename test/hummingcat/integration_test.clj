@@ -1,6 +1,6 @@
 (ns hummingcat.integration-test
   (:require [clojure.test :refer :all]
-            [hummingcat.lib :as h]
+            [hummingcat.core :as h]
             [hiccup.core :refer :all]
             [clj-webdriver.taxi :as t]))
 

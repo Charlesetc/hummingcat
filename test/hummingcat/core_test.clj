@@ -1,6 +1,6 @@
 (ns hummingcat.core-test
   (:require [clojure.test :refer :all]
-            [hummingcat.lib :refer :all]
+            [hummingcat.core :refer :all]
             [clj-webdriver.taxi :as t]))
 
 (defn selenium-fixture
