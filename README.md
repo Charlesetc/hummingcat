@@ -1,8 +1,5 @@
-# Hummingcat
-
+# Hummingcat [![Clojars Project](http://clojars.org/hummingcat/latest-version.svg)](http://clojars.org/hummingcat)
 Faster than a cat.
-
-[![Clojars Project](http://clojars.org/hummingcat/latest-version.svg)](http://clojars.org/hummingcat)
 
 ## Installation
 
