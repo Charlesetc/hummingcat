@@ -1,11 +1,29 @@
-# Hummingcat [![Clojars Project](http://clojars.org/hummingcat/latest-version.svg)](http://clojars.org/hummingcat)
+# Hummingcat 
 Faster than a cat.
 
 ## Installation
 
 ### Clojars
+[![Clojars Project](http://clojars.org/hummingcat/latest-version.svg)](http://clojars.org/hummingcat)
 
-[not yet implemented]
+### Leiningen
+
+Add this to the dependencies in your project.clj file.
+```clojure
+[hummingcat "0.1.1"]
+```
+
+### Maven
+
+Add this to the dependancies in your project.
+
+```xml
+<dependency>
+  <groupId>hummingcat</groupId>
+  <artifactId>hummingcat</artifactId>
+  <version>0.1.1</version>
+</dependency>
+```
 
 ## Usage
 
