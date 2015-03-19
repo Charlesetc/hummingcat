@@ -1,6 +1,8 @@
 # Hummingcat 
 Faster than a cat.
 
+![](https://lh6.googleusercontent.com/-XS3SEirigl8/VQpAFC72qcI/AAAAAAAAAWg/i3UfiD2jn2s/w378-h394-no/ghost_hummingcat.png)
+
 ## Installation
 
 [![Clojars Project](http://clojars.org/hummingcat/latest-version.svg)](http://clojars.org/hummingcat)
