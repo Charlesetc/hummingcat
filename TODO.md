@@ -1,17 +1,16 @@
 
 # TODO 
-
-	* Parameters in URL
-	* Render clojurescript
+	
+  * Parameters in URL
 	* Render some css preprocessor.
 	* Real-time clojurescript built-in
 	* Databases - Redis
-	* At some point, `lein ring server` should serve static files.
-	* Universal Settings
-	- Custom Middleware.
-	- Custom 404
+	* Reloading server
 	* Test Cookies
-	* Move views to another file.
-		-- Might be best done after it's a clojar.
-		-- This would give another namespace.
+  * Make a macro for testing
+	* Compile clojurescript programmatically. 
+  * Option to change static file location
+  * Update documentation of GET etc.
+  * Tutorial for Reqeusts
+  * Tutorial for Responses
 

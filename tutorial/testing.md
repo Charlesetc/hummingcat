@@ -11,7 +11,7 @@ Testing your hummingcat app:
 Example:
 
 ```clojure
-(ns your-ab.integration-test
+(ns your-app.integration-test
   (:require [clojure.test :refer :all]
             [hummingcat.lib :as h]
             [clj-webdriver.taxi :as t]))

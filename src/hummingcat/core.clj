@@ -1,7 +1,7 @@
 (ns hummingcat.core
   (:use hiccup.core
     ring.adapter.jetty
-    ring.util.response
+    ; ring.util.response
     ring.middleware.reload
     ring.middleware.stacktrace
     ring.middleware.resource
@@ -12,21 +12,74 @@
     ring.util.io
     ring.middleware.session
     ring.middleware.cookies)
-  (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]
+            [ring.util.response :as ring]))
 
 
-  ; A 404 request. `hummingcat.lib/status_404`
-(defn status_404 
+  ; A 404 request. `hummingcat/default_404`
+
+(defn response 
+  "
+  This function helps produce custom response-objects. 
+  Furthermore, you can using response-objects to implement 
+  cookies and the like, whereas passing in a string to `get`
+  or `def-route` does not enable this.
+
+  If you just want a response object to manipulate, but 
+  don't want to specify custom settings, just pass a string
+  to the function:
+
+  (response \"Not found!\")
+
+  However, if you want to make a custom status, add another
+  parameter:
+
+  (response \"Not found!\" 404)
+
+  You can also specify the content-type with an additional 
+  string:
+
+  (response \"Not found!\" 404 \"text/plain\")
+
+  Lastly, instead of passing in a string as the last 
+  argument, you can put all the header-settings into a 
+  hash-map as the third argument:
+
+  (response \"Not found!\" 404 i{\"Content-Type\" \"text/plain\"})
+  "
+  ([body] (response body 200))
+  ([body status] (response body status "text/html"))
+  ([body status header] 
+    (let [h (if (string? header) {"Content-Type" header} header)]
+    {:body body
+     :status status
+     :headers h})))
+
+
+; This is just a copy of the ring redirect.
+; It's a function and not just a definition
+; so that it's documentation is more readable.
+(defn redirect 
+  "
+  A function that returns a response for an HTTP redirect, given a url.
+
+  Example:
+  
+  (hummingcat/def-handler my_handler [request]
+    (hummingcat/get \"/some_URL\" (redirect \"/this_one\")))
+  "
+  [request]
+  (ring/redirect request))
+
+
+(defn default_404 
   "
   A 404 (Not Found) response.
 
   Used internally when no route matches a url.
   "
   [request]
-  {:status 404
-   :headers {"Content-Type" "text/plain"}
-   :body "404"})
-
+  (response "404" 404 "text/plain"))
 
 
   ; This is for the macro def-handler 
@@ -60,28 +113,44 @@
       (get #\"^/hello_world$\" \"Hello World!\"))
   "
   [variable parameter & args]
-  (let [full_list (conj (vec args) status_404)]
+  (let [full_list (conj (vec args) default_404)]
   `(defn ~variable ~parameter
     ~(list (r_insert full_list) (first parameter)))))
 
 (defn def-route
   "
-  This is used to define a route, passing in a method and a path to match.
+  This is used to define a route, passing in a method and a
+  path to match, and also a response to return.
+
+  This response can either be a string or a hash like this: 
+    
+    {:status 200, :body \"<html></html>\", :headers {\"Content-Type\" \"text/html\"}} 
+
+  This response hash is equivalent to just the string 
+  \"<html></html>\". Note, this means the defaults are 200, 
+  for the status, and text/html for the content-type.
+
+  If you want to create http responses that do not use these
+  defaults, hummingcat provides the methods `response` and
+  `redirect`, among others. There is documentation for these too.
   
   Example:
     
     ; This is equivalent to hummingcat/get.
     (defn get [handler path response] (def-route handler :get path response))
   "
-  [handler method path res]
+  [handler method path response_a]
+  (let [response (if (string? response_a) 
+                    (ring/response response_a) 
+                    response_a)]
   (fn [request]
     (let [request_matched (= (:request-method request) method)
           url (:uri request)
           regex_matched (not (empty? (re-find (re-pattern path) url)))]
       (if
         (and request_matched regex_matched)
-        (content-type (response res) "text/html") ; Wraps the response
-        (handler request)))))
+        (ring/content-type response "text/html")
+        (handler request))))))
 
 (defn get 
   "

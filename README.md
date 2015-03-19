@@ -67,6 +67,12 @@ That's hummingcat!
 
 See the [tutorial](tutorial/) for more information.
 
+## Contributing
+
+If you are in the mood for contributing, please go ahead! Fork the repository, hack away, and then make a pull request.
+
+Check out the issues section to see what needs improving.
+
 ## License
 
 Copyright © 2015 Charlesetc

@@ -14,10 +14,6 @@
   :profiles {:uberjar {:aot :all}
              :dev {:dependencies [[clj-webdriver "0.6.0"]
                                   ]}}
-  ; :repositories [["clojars" {:username "charlesetc"}]]
-  ; :deploy-repositories [["releases"
-  ;   {:url "http://blueant.com/archiva/internal/releases"
-  ;    :sign-releases false }]]
   :test-selectors {:default (complement :browser)
                    :browser :browser}
-                   ) ; Might need a ] here...
+                   ) ; ]
