@@ -1,7 +1,7 @@
 # Hummingcat 
 Faster than a cat.
 
-![](https://lh6.googleusercontent.com/-FTS8wyubVY4/VQo-8xZbE5I/AAAAAAAAAV8/I6m98vL_mvM/w1038-h1342-no/ghost_hummingcat.png)
+![](https://lh6.googleusercontent.com/-XS3SEirigl8/VQpAFC72qcI/AAAAAAAAAWg/i3UfiD2jn2s/w378-h394-no/ghost_hummingcat.png)
 
 ## Installation
 
