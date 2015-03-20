@@ -1,7 +1,7 @@
 
 ; This is the test-app. Should really move this.
+(ns hummingcat.core)
 
-(ns hummingcat_app.core) 
-
-(print "HELLO!!!!")
+(enable-console-print!)
+(println "HELLO!!!!")
 

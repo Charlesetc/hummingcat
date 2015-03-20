@@ -1,23 +1,10 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-(defproject hummingcat "0.2.3"
-=======
-(defproject hummingcat "0.1.1"
->>>>>>> parent of 6632b3e... Compiling clojurescript
-=======
-(defproject hummingcat "0.1.1"
->>>>>>> parent of 6632b3e... Compiling clojurescript
-=======
-(defproject hummingcat "0.1.1"
->>>>>>> parent of 6632b3e... Compiling clojurescript
+(defproject hummingcat "0.1.2"
   :description "Hummingcat: Faster than a cat."
   :url "https://github.com/Charlesetc/hummingcat"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [ring "1.3.2"]
-                 [http-kit "2.1.16"]
                  [org.clojure/clojurescript "0.0-3058"]]
   :plugins [[lein-ring "0.8.11"]
             [codox "0.8.11"]]
@@ -29,4 +16,4 @@
                                   ]}}
   :test-selectors {:default (complement :browser)
                    :browser :browser}
-                   )
+                   ) ; ]

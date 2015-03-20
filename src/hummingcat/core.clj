@@ -1,20 +1,19 @@
 (ns hummingcat.core
-  (:gen-class)
   (:use hiccup.core
-    ; ring.adapter.jetty
-    ; ring.middleware.reload
-    org.httpkit.server
+    ring.adapter.jetty
+    ; ring.util.response
+    ring.middleware.reload
     ring.middleware.stacktrace
     ring.middleware.resource
     ring.middleware.file-info
     ring.middleware.content-type
     ring.middleware.not-modified
-    ring.middleware.keyword-params
     ring.middleware.params
     ring.util.io
     ring.middleware.session
     ring.middleware.cookies)
   (:require [clojure.string :as string]
+            cljs.closure 
             [ring.util.response :as ring]))
 
 
@@ -102,6 +101,7 @@
   ;  )
 
   ; Define a response to a request with a method and a route
+  ; Put the default 404 option in here: as another parameter.
 (defmacro def-handler 
   "
   Define a handler by passing in a series of routes. 
@@ -174,7 +174,6 @@
   [handler path res] 
   (def-route handler :post path res))
 
-
 ; Custom url-parametrization
 (defn ^:private wrap-url-params [handler]
   (fn [request] 
@@ -184,67 +183,43 @@
 
 (defn ^:private wrap-app
   "This is to wrap the request with middleware"
-  [handler]
+  ; All the middleware in one place.
+  [handler settings]
   (->
     handler
     (wrap-url-params) ; Custom url-parametrization
-    (wrap-keyword-params)
     (wrap-params)
     (wrap-session)
     (wrap-cookies)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    (wrap-resource "./out") ; Obviously only one of these is correct...
-    (wrap-resource "../out")
     (wrap-resource (or (:static settings) "./"))
     (wrap-file-info)
     (wrap-content-type)
     (wrap-not-modified)
-    ; (wrap-reload '(hummingcat.lib)) ; Not sure this works
+    (wrap-reload '(hummingcat.lib)) ; Not sure this works
     (wrap-stacktrace)))             ; Maybe take it out?
 
 
 ; This function is used within hummingcat/run.
 (defn ^:private convert_relative [input_file input_path output_path]
   (list input_file (string/replace (str output_path (string/replace input_file input_path "")) #"\.cljs$" ".js")))
-=======
-    (wrap-resource "./")
-    (wrap-file-info)
-    (wrap-content-type)
-    (wrap-not-modified)
-    (wrap-reload '(hummingcat.lib))
-    (wrap-stacktrace)))
->>>>>>> parent of 6632b3e... Compiling clojurescript
-=======
-    (wrap-resource "./")
-    (wrap-file-info)
-    (wrap-content-type)
-    (wrap-not-modified)
-    (wrap-reload '(hummingcat.lib))
-    (wrap-stacktrace)))
->>>>>>> parent of 6632b3e... Compiling clojurescript
-=======
-    (wrap-resource "./")
-    (wrap-file-info)
-    (wrap-content-type)
-    (wrap-not-modified)
-    (wrap-reload '(hummingcat.lib))
-    (wrap-stacktrace)))
->>>>>>> parent of 6632b3e... Compiling clojurescript
 
 (defn run
   "
-  The `run` function takes a handler and a port and runs your hummingcat app!
+  The `run` function takes a handler and an options hash and runs
+  your hummingcat app!
 
-  Optionally, provide a hash of ring options as the third argument. (Don't forget the port, in this case.)
+  If the only option you have is a port, there's no need to wrap
+  it in a hash. 
+  Thus, both of these are valid:
+
+  (hummingcat/run my_handler 2000)
+  (hummingcat/run my_handler {:port 2000})
+
+  Just remember to define `my_handler` with `hummingcat/def-handler`
   "
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
   [handler options]
     (if (number? options)
-        (run-server (wrap-app handler {}) {:port options})
+        (run-jetty (wrap-app handler {}) {:port options})
 
         ; This just parses the settings and puts them where I want them.
         ; Some go into the wrap-app function (settings)
@@ -252,42 +227,45 @@
         ; The rest are passed on as options to the Ring server.
         ; All are optional. Pass in just a number if you want.
         (let [settings {:static (:static options)} 
-              new-options (dissoc options 
+              new_options (dissoc options 
                                   :static
                                   :cljs-input
                                   :cljs-output)
               static (:static options)
-              input-path (or (:cljs-input options) static)
-              output-path (or (:cljs-output options) static)]
-          (do
-          (if 
-            (and input-path output-path) 
-            (cljs.closure/build input-path {:output-to (output-path) 
-                                            :optimizations :advanced})
-            (when 
-              (or input-path output-path) 
-              (throw "You need both a :cljs-input and a :cljs-output")))
-          (run-server (wrap-app handler settings) new-options)))))
+              ; Cannot use an absolute path. Fix later.
+              input_path (or (:cljs-input options) static)
+              output_path (or (:cljs-output options) static)]
+          (do  ; Necessary for run-jetty
+          (if (and input_path output_path) 
+            (let [input_directory (clojure.java.io/file input_path)
+                  output_absolute_path (.getAbsolutePath 
+                                         (clojure.java.io/file output_path))
+                  input_absolute_path (.getAbsolutePath input_directory)
+                  input_files (for [file (filter #(.isFile %) (file-seq input_directory))] (.getAbsolutePath file))
+                  output_files (vec (map 
+                                      #(convert_relative 
+                                        %
+                                        input_absolute_path 
+                                        output_absolute_path)
+                                      input_files))]
+
+                ; I know this is stupid
+                ; A for loop wasn't working, I have no idea.
+                ; Obviously should refactor.
+                (dotimes [i (count output_files)]
+                  (let [current (nth output_files i)]
+                    (cljs.closure/build (first current) {:output-to (second current) 
+                                                   :optimizations :advanced}))))
+            (when (or input_path output_path) 
+              (throw (Exception. "You need both a :cljs_input and a :cljs"))))
+          (run-jetty (wrap-app handler settings) new_options)))))
 
 
-; (def-handler handle [request]
-;   (get "/\\d+" (first (:url-params request)))
-;   (get "/hi" "HELLO WORLD"))
-; 
-; 
-=======
-=======
->>>>>>> parent of 6632b3e... Compiling clojurescript
-=======
->>>>>>> parent of 6632b3e... Compiling clojurescript
-  ([handler port the_rest]
-    (run-jetty (wrap-app handler) (assoc the_rest :port port)))
-  ([handler port]
-    (run-jetty (wrap-app handler) {:port port})))
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> parent of 6632b3e... Compiling clojurescript
-=======
->>>>>>> parent of 6632b3e... Compiling clojurescript
-=======
->>>>>>> parent of 6632b3e... Compiling clojurescript
+(defn -main [& args] 
+  (run default_404 {:cljs-input "resources/cljs" :cljs-output "resources/js" :port 2000}))
+
+
+
+
+
+
