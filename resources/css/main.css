@@ -1,0 +1,25 @@
+/* main.css */
+
+body {
+	width: 50%;
+	height: 50vh;
+	margin:auto;
+	margin-top: 12vh;
+	padding: 20px;
+	font-size:35px;
+	background: #eee;
+}
+
+* {
+	font-weight: 100;	
+	font-family: arial, sans-serif;
+	color: #222;
+}
+
+a:hover, a:active {
+	color: #eee;
+}
+
+a, a:visited {
+	color: #d33;
+}

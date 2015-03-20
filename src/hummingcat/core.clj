@@ -15,7 +15,6 @@
     ring.middleware.session
     ring.middleware.cookies)
   (:require [clojure.string :as string]
-            cljs.closure 
             [ring.util.response :as ring]))
 
 
@@ -103,7 +102,6 @@
   ;  )
 
   ; Define a response to a request with a method and a route
-  ; Put the default 404 option in here: as another parameter.
 (defmacro def-handler 
   "
   Define a handler by passing in a series of routes. 
@@ -176,6 +174,7 @@
   [handler path res] 
   (def-route handler :post path res))
 
+
 ; Custom url-parametrization
 (defn ^:private wrap-url-params [handler]
   (fn [request] 
@@ -185,8 +184,7 @@
 
 (defn ^:private wrap-app
   "This is to wrap the request with middleware"
-  ; All the middleware in one place.
-  [handler settings]
+  [handler]
   (->
     handler
     (wrap-url-params) ; Custom url-parametrization
@@ -194,6 +192,7 @@
     (wrap-params)
     (wrap-session)
     (wrap-cookies)
+<<<<<<< HEAD
     (wrap-resource "./out") ; Obviously only one of these is correct...
     (wrap-resource "../out")
     (wrap-resource (or (:static settings) "./"))
@@ -207,21 +206,22 @@
 ; This function is used within hummingcat/run.
 (defn ^:private convert_relative [input_file input_path output_path]
   (list input_file (string/replace (str output_path (string/replace input_file input_path "")) #"\.cljs$" ".js")))
+=======
+    (wrap-resource "./")
+    (wrap-file-info)
+    (wrap-content-type)
+    (wrap-not-modified)
+    (wrap-reload '(hummingcat.lib))
+    (wrap-stacktrace)))
+>>>>>>> parent of 6632b3e... Compiling clojurescript
 
 (defn run
   "
-  The `run` function takes a handler and an options hash and runs
-  your hummingcat app!
+  The `run` function takes a handler and a port and runs your hummingcat app!
 
-  If the only option you have is a port, there's no need to wrap
-  it in a hash. 
-  Thus, both of these are valid:
-
-  (hummingcat/run my_handler 2000)
-  (hummingcat/run my_handler {:port 2000})
-
-  Just remember to define `my_handler` with `hummingcat/def-handler`
+  Optionally, provide a hash of ring options as the third argument. (Don't forget the port, in this case.)
   "
+<<<<<<< HEAD
   [handler options]
     (if (number? options)
         (run-server (wrap-app handler {}) {:port options})
@@ -255,3 +255,9 @@
 ;   (get "/hi" "HELLO WORLD"))
 ; 
 ; 
+=======
+  ([handler port the_rest]
+    (run-jetty (wrap-app handler) (assoc the_rest :port port)))
+  ([handler port]
+    (run-jetty (wrap-app handler) {:port port})))
+>>>>>>> parent of 6632b3e... Compiling clojurescript
