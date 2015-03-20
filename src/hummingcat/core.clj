@@ -228,7 +228,7 @@
               output_path (or (:cljs-output options) static)]
           (do  ; Necessary for run-server
           (if (and input_path output_path)
-            (cljs.closure/build input_path )
+            (cljs.closure/build input_path {:optimizations :advanced :output-to output_path})
             (when (or input_path output_path)
               (throw (Exception. "You need both a :cljs_input and a :cljs"))))
           (run-server (wrap-app handler settings) new_options)))))
