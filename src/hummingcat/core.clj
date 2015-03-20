@@ -1,8 +1,8 @@
 (ns hummingcat.core
   (:use hiccup.core
-    ring.adapter.jetty
-    ; ring.util.response
-    ring.middleware.reload
+    ; ring.adapter.jetty
+    ; ring.middleware.reload
+    org.httpkit.server
     ring.middleware.stacktrace
     ring.middleware.resource
     ring.middleware.file-info
@@ -195,7 +195,7 @@
     (wrap-file-info)
     (wrap-content-type)
     (wrap-not-modified)
-    (wrap-reload '(hummingcat.lib)) ; Not sure this works
+    ; (wrap-reload '(hummingcat.lib)) ; Not sure this works
     (wrap-stacktrace)))             ; Maybe take it out?
 
 
@@ -219,7 +219,7 @@
   "
   [handler options]
     (if (number? options)
-        (run-jetty (wrap-app handler {}) {:port options})
+        (run-server (wrap-app handler {}) {:port options})
 
         ; This just parses the settings and puts them where I want them.
         ; Some go into the wrap-app function (settings)
@@ -258,14 +258,13 @@
                                                    :optimizations :advanced}))))
             (when (or input_path output_path) 
               (throw (Exception. "You need both a :cljs_input and a :cljs"))))
-          (run-jetty (wrap-app handler settings) new_options)))))
+          (run-server (wrap-app handler settings) new_options)))))
 
+
+(def-handler handle [request]
+  (get "/\\d+" (first (:url-params request)))
+  (get "/hi" "HELLO WORLD"))
 
 (defn -main [& args] 
-  (run default_404 {:cljs-input "resources/cljs" :cljs-output "resources/js" :port 2000}))
-
-
-
-
-
+  (run handle {:port 8000}))
 

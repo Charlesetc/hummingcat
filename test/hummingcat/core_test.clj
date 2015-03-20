@@ -74,8 +74,7 @@
   (is (= (t/title) "THIS"))
   (t/to "localhost:8000/that")
   (is (= (t/title) "THAT"))
-  (future-cancel f)
-  )
+  (future-cancel f))
 
 (deftest regex-test
   (def f (future (h/run regexhandler 8000)))
