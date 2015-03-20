@@ -1,4 +1,5 @@
 (ns hummingcat.core
+  (:gen-class)
   (:use hiccup.core
     ; ring.adapter.jetty
     ; ring.middleware.reload
@@ -253,6 +254,4 @@
 ;   (get "/\\d+" (first (:url-params request)))
 ;   (get "/hi" "HELLO WORLD"))
 ; 
-; (defn -main [& args] 
-;   (run handle {:port 8000}))
 ; 

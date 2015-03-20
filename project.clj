@@ -17,4 +17,4 @@
                                   ]}}
   :test-selectors {:default (complement :browser)
                    :browser :browser}
-                   ) ; ]
+                   )
