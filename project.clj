@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 (defproject hummingcat "0.2.3"
+=======
+(defproject hummingcat "0.1.1"
+>>>>>>> parent of 6632b3e... Compiling clojurescript
 =======
 (defproject hummingcat "0.1.1"
 >>>>>>> parent of 6632b3e... Compiling clojurescript

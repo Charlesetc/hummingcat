@@ -14,7 +14,6 @@
 	* Compile clojurescript programmatically. 
   * Option to change static file location
   * Update documentation of GET etc.
->>>>>>> parent of 6632b3e... Compiling clojurescript
   * Tutorial for Reqeusts
   * Tutorial for Responses
 
