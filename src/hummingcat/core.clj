@@ -194,6 +194,7 @@
     (wrap-cookies)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     (wrap-resource "./out") ; Obviously only one of these is correct...
     (wrap-resource "../out")
     (wrap-resource (or (:static settings) "./"))
@@ -223,6 +224,14 @@
     (wrap-reload '(hummingcat.lib))
     (wrap-stacktrace)))
 >>>>>>> parent of 6632b3e... Compiling clojurescript
+=======
+    (wrap-resource "./")
+    (wrap-file-info)
+    (wrap-content-type)
+    (wrap-not-modified)
+    (wrap-reload '(hummingcat.lib))
+    (wrap-stacktrace)))
+>>>>>>> parent of 6632b3e... Compiling clojurescript
 
 (defn run
   "
@@ -230,6 +239,7 @@
 
   Optionally, provide a hash of ring options as the third argument. (Don't forget the port, in this case.)
   "
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   [handler options]
@@ -268,11 +278,16 @@
 =======
 =======
 >>>>>>> parent of 6632b3e... Compiling clojurescript
+=======
+>>>>>>> parent of 6632b3e... Compiling clojurescript
   ([handler port the_rest]
     (run-jetty (wrap-app handler) (assoc the_rest :port port)))
   ([handler port]
     (run-jetty (wrap-app handler) {:port port})))
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> parent of 6632b3e... Compiling clojurescript
+=======
 >>>>>>> parent of 6632b3e... Compiling clojurescript
 =======
 >>>>>>> parent of 6632b3e... Compiling clojurescript
