@@ -188,6 +188,7 @@
   (->
     handler
     (wrap-url-params) ; Custom url-parametrization
+    (wrap-keywords-params)
     (wrap-params)
     (wrap-session)
     (wrap-cookies)
@@ -254,10 +255,11 @@
                 ; Obviously should refactor.
                 (dotimes [i (count output_files)]
                   (let [current (nth output_files i)]
+                    ; This fails silently! A very bad thing.
                     (cljs.closure/build (first current) {:output-to (second current) 
                                                    :optimizations :advanced}))))
             (when (or input_path output_path) 
-              (throw (Exception. "You need both a :cljs_input and a :cljs"))))
+              (throw (Exception. "You need both a :cljs-input and a :cljs-output"))))
           (run-server (wrap-app handler settings) new_options)))))
 
 
