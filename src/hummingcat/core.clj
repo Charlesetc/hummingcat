@@ -192,6 +192,8 @@
     (wrap-params)
     (wrap-session)
     (wrap-cookies)
+    (wrap-resource "./out") ; obviously room for improvement.
+    (wrap-resource "../out")
     (wrap-resource (or (:static settings) "./"))
     (wrap-file-info)
     (wrap-content-type)
