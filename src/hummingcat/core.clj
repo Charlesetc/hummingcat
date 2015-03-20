@@ -8,6 +8,7 @@
     ring.middleware.file-info
     ring.middleware.content-type
     ring.middleware.not-modified
+    ring.middleware.keyword-params
     ring.middleware.params
     ring.util.io
     ring.middleware.session
@@ -188,10 +189,12 @@
   (->
     handler
     (wrap-url-params) ; Custom url-parametrization
-    (wrap-keywords-params)
+    (wrap-keyword-params)
     (wrap-params)
     (wrap-session)
     (wrap-cookies)
+    (wrap-resource "./out") ; Obviously only one of these is correct...
+    (wrap-resource "../out")
     (wrap-resource (or (:static settings) "./"))
     (wrap-file-info)
     (wrap-content-type)
@@ -228,39 +231,22 @@
         ; The rest are passed on as options to the Ring server.
         ; All are optional. Pass in just a number if you want.
         (let [settings {:static (:static options)} 
-              new_options (dissoc options 
+              new-options (dissoc options 
                                   :static
                                   :cljs-input
                                   :cljs-output)
               static (:static options)
-              ; Cannot use an absolute path. Fix later.
-              input_path (or (:cljs-input options) static)
-              output_path (or (:cljs-output options) static)]
-          (do  ; Necessary for run-jetty
-          (if (and input_path output_path) 
-            (let [input_directory (clojure.java.io/file input_path)
-                  output_absolute_path (.getAbsolutePath 
-                                         (clojure.java.io/file output_path))
-                  input_absolute_path (.getAbsolutePath input_directory)
-                  input_files (for [file (filter #(.isFile %) (file-seq input_directory))] (.getAbsolutePath file))
-                  output_files (vec (map 
-                                      #(convert_relative 
-                                        %
-                                        input_absolute_path 
-                                        output_absolute_path)
-                                      input_files))]
-
-                ; I know this is stupid
-                ; A for loop wasn't working, I have no idea.
-                ; Obviously should refactor.
-                (dotimes [i (count output_files)]
-                  (let [current (nth output_files i)]
-                    ; This fails silently! A very bad thing.
-                    (cljs.closure/build (first current) {:output-to (second current) 
-                                                   :optimizations :advanced}))))
-            (when (or input_path output_path) 
-              (throw (Exception. "You need both a :cljs-input and a :cljs-output"))))
-          (run-server (wrap-app handler settings) new_options)))))
+              input-path (or (:cljs-input options) static)
+              output-path (or (:cljs-output options) static)]
+          (do
+          (if 
+            (and input-path output-path) 
+            (cljs.closure/build input-path {:output-to (output-path) 
+                                            :optimizations :advanced})
+            (when 
+              (or input-path output-path) 
+              (throw "You need both a :cljs-input and a :cljs-output")))
+          (run-server (wrap-app handler settings) new-options)))))
 
 
 ; (def-handler handle [request]
