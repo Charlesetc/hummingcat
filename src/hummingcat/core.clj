@@ -73,6 +73,12 @@
   [request]
   (ring/redirect request))
 
+(defn set-cookie
+  "
+  Sets a cookie on the response object. Not on a string. 
+  "
+  [response cookie-name value]
+  (ring/set-cookie response cookie-name value)) ; Make this better later.
 
 (defn default_404
   "
