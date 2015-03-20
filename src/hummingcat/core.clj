@@ -1,6 +1,7 @@
 (ns hummingcat.core
   (:use hiccup.core
-    ring.adapter.jetty
+    org.httpkit.server
+    ; ring.adapter.jetty
     ; ring.util.response
     ring.middleware.reload
     ring.middleware.stacktrace
@@ -13,20 +14,20 @@
     ring.middleware.session
     ring.middleware.cookies)
   (:require [clojure.string :as string]
-            cljs.closure 
+            cljs.closure
             [ring.util.response :as ring]))
 
 
   ; A 404 request. `hummingcat/default_404`
 
-(defn response 
+(defn response
   "
-  This function helps produce custom response-objects. 
-  Furthermore, you can using response-objects to implement 
+  This function helps produce custom response-objects.
+  Furthermore, you can using response-objects to implement
   cookies and the like, whereas passing in a string to `get`
   or `def-route` does not enable this.
 
-  If you just want a response object to manipulate, but 
+  If you just want a response object to manipulate, but
   don't want to specify custom settings, just pass a string
   to the function:
 
@@ -37,20 +38,20 @@
 
   (response \"Not found!\" 404)
 
-  You can also specify the content-type with an additional 
+  You can also specify the content-type with an additional
   string:
 
   (response \"Not found!\" 404 \"text/plain\")
 
-  Lastly, instead of passing in a string as the last 
-  argument, you can put all the header-settings into a 
+  Lastly, instead of passing in a string as the last
+  argument, you can put all the header-settings into a
   hash-map as the third argument:
 
   (response \"Not found!\" 404 i{\"Content-Type\" \"text/plain\"})
   "
   ([body] (response body 200))
   ([body status] (response body status "text/html"))
-  ([body status header] 
+  ([body status header]
     (let [h (if (string? header) {"Content-Type" header} header)]
     {:body body
      :status status
@@ -60,12 +61,12 @@
 ; This is just a copy of the ring redirect.
 ; It's a function and not just a definition
 ; so that it's documentation is more readable.
-(defn redirect 
+(defn redirect
   "
   A function that returns a response for an HTTP redirect, given a url.
 
   Example:
-  
+
   (hummingcat/def-handler my_handler [request]
     (hummingcat/get \"/some_URL\" (redirect \"/this_one\")))
   "
@@ -73,7 +74,7 @@
   (ring/redirect request))
 
 
-(defn default_404 
+(defn default_404
   "
   A 404 (Not Found) response.
 
@@ -83,7 +84,7 @@
   (response "404" 404 "text/plain"))
 
 
-  ; This is for the macro def-handler 
+  ; This is for the macro def-handler
   ; It takes a list and puts them around each other
   ; Kind of like this:
   ; (()()()()) --> ((((()))))
@@ -102,15 +103,15 @@
 
   ; Define a response to a request with a method and a route
   ; Put the default 404 option in here: as another parameter.
-(defmacro def-handler 
+(defmacro def-handler
   "
-  Define a handler by passing in a series of routes. 
-  These can either be made with `def-route`, `get`, or `post`. 
-  Note that, while each of these methods take a handler as the 
-  first parameter, this handler is supplied by `def-handler`. 
+  Define a handler by passing in a series of routes.
+  These can either be made with `def-route`, `get`, or `post`.
+  Note that, while each of these methods take a handler as the
+  first parameter, this handler is supplied by `def-handler`.
 
-  Example: 
-  
+  Example:
+
     (def-handler my_handler [request]
       (get #\"^/hello_world$\" \"Hello World!\"))
   "
@@ -124,26 +125,26 @@
   This is used to define a route, passing in a method and a
   path to match, and also a response to return.
 
-  This response can either be a string or a hash like this: 
-    
-    {:status 200, :body \"<html></html>\", :headers {\"Content-Type\" \"text/html\"}} 
+  This response can either be a string or a hash like this:
 
-  This response hash is equivalent to just the string 
-  \"<html></html>\". Note, this means the defaults are 200, 
+    {:status 200, :body \"<html></html>\", :headers {\"Content-Type\" \"text/html\"}}
+
+  This response hash is equivalent to just the string
+  \"<html></html>\". Note, this means the defaults are 200,
   for the status, and text/html for the content-type.
 
   If you want to create http responses that do not use these
   defaults, hummingcat provides the methods `response` and
   `redirect`, among others. There is documentation for these too.
-  
+
   Example:
-    
+
     ; This is equivalent to hummingcat/get.
     (defn get [handler path response] (def-route handler :get path response))
   "
   [handler method path response_a]
-  (let [response (if (string? response_a) 
-                    (ring/response response_a) 
+  (let [response (if (string? response_a)
+                    (ring/response response_a)
                     response_a)]
   (fn [request]
     (let [request_matched (= (:request-method request) method)
@@ -154,30 +155,30 @@
         (ring/content-type response "text/html")
         (handler request))))))
 
-(defn get 
+(defn get
   "
   Used to match a get request, usually within the context of def-handler.
-  
-  Keep in mind that this does not change the handler passed in, 
+
+  Keep in mind that this does not change the handler passed in,
   `get` just returns a new handler that will match the 'path' parameter.
   "
-  [handler path res] 
+  [handler path res]
   (def-route handler :get path res))
 
-(defn post 
+(defn post
   "
   Used to match a post request, usually within the context of def-handler.
-  
-  Keep in mind that this does not change the handler passed in, 
+
+  Keep in mind that this does not change the handler passed in,
   `post` just returns a new handler that will match the 'path' parameter.
   "
-  [handler path res] 
+  [handler path res]
   (def-route handler :post path res))
 
 ; Custom url-parametrization
 (defn ^:private wrap-url-params [handler]
-  (fn [request] 
-    (let [url (:uri request) 
+  (fn [request]
+    (let [url (:uri request)
           url-params (filter not-empty (string/split url #"/"))]
       (handler (assoc request :url-params url-params)))))
 
@@ -199,17 +200,13 @@
     (wrap-stacktrace)))             ; Maybe take it out?
 
 
-; This function is used within hummingcat/run.
-(defn ^:private convert_relative [input_file input_path output_path]
-  (list input_file (string/replace (str output_path (string/replace input_file input_path "")) #"\.cljs$" ".js")))
-
 (defn run
   "
   The `run` function takes a handler and an options hash and runs
   your hummingcat app!
 
   If the only option you have is a port, there's no need to wrap
-  it in a hash. 
+  it in a hash.
   Thus, both of these are valid:
 
   (hummingcat/run my_handler 2000)
@@ -219,15 +216,9 @@
   "
   [handler options]
     (if (number? options)
-        (run-jetty (wrap-app handler {}) {:port options})
-
-        ; This just parses the settings and puts them where I want them.
-        ; Some go into the wrap-app function (settings)
-        ; Some are redirected to compile clojurescript
-        ; The rest are passed on as options to the Ring server.
-        ; All are optional. Pass in just a number if you want.
-        (let [settings {:static (:static options)} 
-              new_options (dissoc options 
+        (run-server (wrap-app handler {}) {:port options})
+        (let [settings {:static (:static options)}
+              new_options (dissoc options
                                   :static
                                   :cljs-input
                                   :cljs-output)
@@ -235,37 +226,13 @@
               ; Cannot use an absolute path. Fix later.
               input_path (or (:cljs-input options) static)
               output_path (or (:cljs-output options) static)]
-          (do  ; Necessary for run-jetty
-          (if (and input_path output_path) 
-            (let [input_directory (clojure.java.io/file input_path)
-                  output_absolute_path (.getAbsolutePath 
-                                         (clojure.java.io/file output_path))
-                  input_absolute_path (.getAbsolutePath input_directory)
-                  input_files (for [file (filter #(.isFile %) (file-seq input_directory))] (.getAbsolutePath file))
-                  output_files (vec (map 
-                                      #(convert_relative 
-                                        %
-                                        input_absolute_path 
-                                        output_absolute_path)
-                                      input_files))]
-
-                ; I know this is stupid
-                ; A for loop wasn't working, I have no idea.
-                ; Obviously should refactor.
-                (dotimes [i (count output_files)]
-                  (let [current (nth output_files i)]
-                    (cljs.closure/build (first current) {:output-to (second current) 
-                                                   :optimizations :advanced}))))
-            (when (or input_path output_path) 
+          (do  ; Necessary for run-server
+          (if (and input_path output_path)
+            (cljs.closure/build input_path )
+            (when (or input_path output_path)
               (throw (Exception. "You need both a :cljs_input and a :cljs"))))
-          (run-jetty (wrap-app handler settings) new_options)))))
+          (run-server (wrap-app handler settings) new_options)))))
 
 
-(defn -main [& args] 
-  (run default_404 {:cljs-input "resources/cljs" :cljs-output "resources/js" :port 2000}))
-
-
-
-
-
-
+;(defn -main [& args]
+;  (run default_404 {:cljs-input "resources/cljs" :cljs-output "resources/js" :port 2000}))
