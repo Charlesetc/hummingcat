@@ -263,10 +263,10 @@
           (run-server (wrap-app handler settings) new_options)))))
 
 
-(def-handler handle [request]
-  (get "/\\d+" (first (:url-params request)))
-  (get "/hi" "HELLO WORLD"))
-
-(defn -main [& args] 
-  (run handle {:port 8000}))
-
+; (def-handler handle [request]
+;   (get "/\\d+" (first (:url-params request)))
+;   (get "/hi" "HELLO WORLD"))
+; 
+; (defn -main [& args] 
+;   (run handle {:port 8000}))
+; 
