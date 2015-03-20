@@ -1,4 +1,4 @@
-(defproject hummingcat "0.1.1"
+(defproject hummingcat "0.1.2"
   :description "Hummingcat: Faster than a cat."
   :url "https://github.com/Charlesetc/hummingcat"
   :license {:name "Eclipse Public License"

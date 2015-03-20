@@ -100,5 +100,18 @@
 (deftest redirect-test
   (def f (future (h/run responsehandler 8000)))
   (t/to "localhost:8000/redirect")
-  (is (= (t/title) "response")))
+  (is (= (t/title) "response"))
+  (future-cancel f))
+
+(deftest static-test 
+  (def f (future (h/run responsehandler 8000)))
+  (t/to "localhost:8000/cljs/core.cljs")
+  ; This kind of means that something was downloaded
+  ; and the page was loaded. Especially because we 
+  ; didn't route it specificall, it's serving static files.
+  (is (= "<body></body>" (t/html (t/element "body"))))
+  (println "---------")
+  (println (t/html (t/element "body")))
+  (println "---------")
+  (future-cancel f))
 
