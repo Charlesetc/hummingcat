@@ -2,7 +2,7 @@
 
 To run, start by cloning into this repository. 
 
-Then cd into this folder, `/examples`.
+Then cd into this folder, `/example_app`.
 
 Presumably you have [leiningen](http://leiningen.org/) installed.
 
